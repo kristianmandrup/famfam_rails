@@ -34,6 +34,17 @@ namespace :famfam do
       end
     end # unless
   end # task
+
+  task :fix do    
+    Dir.chdir("#{RAILS_ROOT}/vendor/famfam") do
+      # always copy core (in root of ext)
+      puts "Installing famfam css" 
+      files = Dir.glob("icons2.css")
+    
+
+      puts "Done!"
+    end
+  end
   
   task :install do    
     public_dir = "#{RAILS_ROOT}/public/"  
@@ -53,10 +64,21 @@ namespace :famfam do
       # always copy core (in root of ext)
       puts "Installing famfam css" 
       files = Dir.glob("*.css")
+      
+      # fix image paths references inside css files
+      # ../icons/famfam/
+      search = 'icons'
+      replace = '../../icons/famfam'
       files.each do |file|
+        puts "Substituting in #{file}"
+        File.open(file,'r+') do |f| 
+          s = f.read.gsub(/#{search}/,replace)
+          f.rewind
+          f.write s
+        end
+        puts "Fixed image references for new locations"         
         FileUtils.copy(file, css_target_dir)    
-      end 
-      puts "Done!"
+      end
 
       # copy icons
       puts "Installing famfam icons" 
